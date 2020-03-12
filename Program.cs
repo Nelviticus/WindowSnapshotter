@@ -3,7 +3,9 @@ using System.Windows.Forms;
 
 namespace WindowSnapshotter
 {
-	/// <summary>
+    using System.IO;
+
+    /// <summary>
 	/// 
 	/// </summary>
 	static class Program
@@ -26,17 +28,18 @@ namespace WindowSnapshotter
 
         private static void RunAsConsole(string[] args)
         {
-            string savedWindowsFileName = "WindowDetails.xml";
+            string savedWindowsFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                "WindowDetails.xml");
 
             switch (args[0].ToLower())
             {
                 case "s":
                 case "save":
-                    WindowManager.SnapshotWindows(savedWindowsFileName);
+                    WindowManager.SnapshotWindows(savedWindowsFile);
                     break;
                 case "r":
                 case "restore":
-                    WindowManager.RestoreWindows(savedWindowsFileName);
+                    WindowManager.RestoreWindows(savedWindowsFile);
                     break;
             }
         }

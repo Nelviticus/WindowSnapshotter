@@ -9,6 +9,8 @@ using static WindowSnapshotter.User32;
 
 namespace WindowSnapshotter
 {
+    using System.Threading.Tasks;
+
     public class WindowManager
     {
         public enum WindowManagerResult
@@ -18,13 +20,10 @@ namespace WindowSnapshotter
             SaveFileMissing
         }
 
-        public static WindowManagerResult RestoreWindows(string savedWindowsFileName)
+        public static WindowManagerResult RestoreWindows(string savedWindowsFile)
         {
             try
             {
-                string myDocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                string savedWindowsFile = Path.Combine(myDocumentsPath, savedWindowsFileName);
-
                 if (!File.Exists(savedWindowsFile))
                     return WindowManagerResult.SaveFileMissing;
 
@@ -54,7 +53,15 @@ namespace WindowSnapshotter
                             SetWindowPlacement(hWnd, ref tempWindowPlacement);
                         }
 
-                        SetWindowPlacement(hWnd, ref snapshottedWindowDetails.Windowplacement);
+                        var setWindowPlacemenTask = Task.Run(() =>
+                        {
+                            SetWindowPlacement(hWnd, ref snapshottedWindowDetails.Windowplacement);
+                        });
+
+                        if (!setWindowPlacemenTask.Wait(TimeSpan.FromMilliseconds(500)))
+                        {
+                            return false;
+                        }
                     }
                     return true;
                 };
