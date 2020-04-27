@@ -10,7 +10,10 @@ namespace WindowSnapshotter
 	/// </summary>
 	class ContextMenus
 	{
-        const string SavedWindowsFileName = "WindowDetails.xml";
+        private const string DefaultSaveFileName = "WindowDetails.xml";
+
+        private static readonly string DefaultSaveFile =
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), DefaultSaveFileName);
 
         /// <summary>
         /// Is the About box displayed?
@@ -28,52 +31,54 @@ namespace WindowSnapshotter
             _notifyIcon = notifyIcon;
 
 			// Add the default menu options.
-			ContextMenuStrip menu = new ContextMenuStrip();
-			ToolStripMenuItem item;
-			ToolStripSeparator sep;
+			var menu = new ContextMenuStrip();
 
-			// Restore saved window positions.
-			item = new ToolStripMenuItem();
-			item.Text = "Restore";
-            item.ToolTipText = "Restore window positions from saved file";
-			item.Click += new EventHandler(Restore_Click);
+            // Restore saved window positions.
+            var item = new ToolStripMenuItem {Text = "Restore", ToolTipText = "Restore window positions from saved file"};
+            item.Click += Restore_Click;
 			item.Image = Resources.Open_32x;
-            //item.Enabled = SaveFileExists();
 			menu.Items.Add(item);
 
             // Save window positions.
-            item = new ToolStripMenuItem();
-            item.Text = "Save";
-            item.ToolTipText = "Save window positions to file";
-            item.Click += new EventHandler(Save_Click);
+            item = new ToolStripMenuItem {Text = "Save", ToolTipText = "Save window positions to file"};
+            item.Click += Save_Click;
             item.Image = Resources.Save_32x;
             menu.Items.Add(item);
 
+			// Separator.
+			menu.Items.Add(new ToolStripSeparator());
+
+            // Restore saved window positions.
+            item = new ToolStripMenuItem { Text = "Restore from ...", ToolTipText = "Restore window positions from saved file" };
+            item.Click += RestoreFrom_Click;
+            item.Image = Resources.Open_32x;
+            menu.Items.Add(item);
+
+            // Save window positions.
+            item = new ToolStripMenuItem {Text = "Save to ...", ToolTipText = "Save window positions to file"};
+            item.Click += SaveTo_Click;
+            item.Image = Resources.Save_32x;
+            menu.Items.Add(item);
+
+			// Separator.
+			menu.Items.Add(new ToolStripSeparator());
+
             // About.
-            item = new ToolStripMenuItem();
-			item.Text = "About";
-			item.Click += new EventHandler(About_Click);
+            item = new ToolStripMenuItem {Text = "About"};
+            item.Click += About_Click;
 			item.Image = Resources.StatusInformation_32x_exp;
 			menu.Items.Add(item);
 
 			// Separator.
-			sep = new ToolStripSeparator();
-			menu.Items.Add(sep);
+			menu.Items.Add(new ToolStripSeparator());
 
 			// Exit.
-			item = new ToolStripMenuItem();
-			item.Text = "Exit";
-			item.Click += new System.EventHandler(Exit_Click);
-			//item.Image = Resources.Exit;
+            item = new ToolStripMenuItem {Text = "Exit"};
+            item.Click += Exit_Click;
 			menu.Items.Add(item);
 
 			return menu;
 		}
-
-        private bool SaveFileExists()
-        {
-            return File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), SavedWindowsFileName));
-        }
 
         /// <summary>
         /// Handles the Click event of the Save control.
@@ -82,13 +87,40 @@ namespace WindowSnapshotter
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         void Save_Click(object sender, EventArgs e)
         {
-            switch(WindowManager.SnapshotWindows(SavedWindowsFileName))
+            switch(WindowManager.SnapshotWindows(DefaultSaveFile))
             {
                 case WindowManager.WindowManagerResult.Success:
                     ShowMessage("Save successful", "Window positions saved.");
                     break;
                 default:
-                    ShowMessage("Save error", "There was an error saving the window poistiions.", true);
+                    ShowMessage("Save error", "There was an error saving the window positions.", true);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Handles the Click event of the Save To control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
+        void SaveTo_Click(object sender, EventArgs e)
+        {
+            var saveFileDialog = new SaveFileDialog
+            {
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                FileName = DefaultSaveFileName
+            };
+
+            if (saveFileDialog.ShowDialog() != DialogResult.OK)
+                return;
+
+            switch (WindowManager.SnapshotWindows(saveFileDialog.FileName))
+            {
+                case WindowManager.WindowManagerResult.Success:
+                    ShowMessage("Save successful", "Window positions saved.");
+                    break;
+                default:
+                    ShowMessage("Save error", "There was an error saving the window positions.", true);
                     break;
             }
         }
@@ -100,7 +132,7 @@ namespace WindowSnapshotter
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         void Restore_Click(object sender, EventArgs e)
         {
-            switch (WindowManager.RestoreWindows(SavedWindowsFileName))
+            switch (WindowManager.RestoreWindows(DefaultSaveFile))
             {
                 case WindowManager.WindowManagerResult.Success:
                     ShowMessage("Restore successful", "Window positions restored.");
@@ -109,7 +141,37 @@ namespace WindowSnapshotter
                     ShowMessage("Windows not restored", "A saved window positions file could not be found. Please save window positions before attempting to restore them.");
                     break;
                 default:
-                    ShowMessage("Restore error", "There was an error restoring the window poistiions.", true);
+                    ShowMessage("Restore error", "There was an error restoring the window positions.", true);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Handles the Click event of the Restore From control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
+        void RestoreFrom_Click(object sender, EventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                FileName = DefaultSaveFileName
+            };
+
+            if (openFileDialog.ShowDialog() != DialogResult.OK)
+                return;
+
+            switch (WindowManager.RestoreWindows(openFileDialog.FileName))
+            {
+                case WindowManager.WindowManagerResult.Success:
+                    ShowMessage("Restore successful", "Window positions restored.");
+                    break;
+                case WindowManager.WindowManagerResult.SaveFileMissing:
+                    ShowMessage("Windows not restored", "A saved window positions file could not be found. Please save window positions before attempting to restore them.");
+                    break;
+                default:
+                    ShowMessage("Restore error", "There was an error restoring the window positions.", true);
                     break;
             }
         }
