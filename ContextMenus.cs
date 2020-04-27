@@ -39,19 +39,19 @@ namespace WindowSnapshotter
 			item.Image = Resources.Open_32x;
 			menu.Items.Add(item);
 
-            // Save window positions.
-            item = new ToolStripMenuItem {Text = "Save", ToolTipText = "Save window positions to file"};
-            item.Click += Save_Click;
-            item.Image = Resources.Save_32x;
+            // Restore saved window positions.
+            item = new ToolStripMenuItem { Text = "Restore from ...", ToolTipText = "Restore window positions from saved file" };
+            item.Click += RestoreFrom_Click;
+            item.Image = Resources.Open_32x;
             menu.Items.Add(item);
 
 			// Separator.
 			menu.Items.Add(new ToolStripSeparator());
 
-            // Restore saved window positions.
-            item = new ToolStripMenuItem { Text = "Restore from ...", ToolTipText = "Restore window positions from saved file" };
-            item.Click += RestoreFrom_Click;
-            item.Image = Resources.Open_32x;
+            // Save window positions.
+            item = new ToolStripMenuItem {Text = "Save", ToolTipText = "Save window positions to file"};
+            item.Click += Save_Click;
+            item.Image = Resources.Save_32x;
             menu.Items.Add(item);
 
             // Save window positions.
