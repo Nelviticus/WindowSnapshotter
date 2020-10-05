@@ -28,8 +28,16 @@ namespace WindowSnapshotter
 
         private static void RunAsConsole(string[] args)
         {
-            string savedWindowsFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "WindowDetails.xml");
+            string savedWindowsFile;
+            if (args.Length > 1)
+            {
+                savedWindowsFile = args[1];
+            }
+            else
+            {
+                savedWindowsFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                    "WindowDetails.xml");
+            }
 
             switch (args[0].ToLower())
             {
