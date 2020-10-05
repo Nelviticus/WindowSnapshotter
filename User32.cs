@@ -65,7 +65,9 @@ namespace WindowSnapshotter
 
         public struct WindowDetails
         {
-            public string windowTitle;
+            public string WindowTitle;
+            public Int32 WindowHandle32;
+            public Int64 WindowHandle64;
             public WINDOWPLACEMENT Windowplacement;
         }
 
