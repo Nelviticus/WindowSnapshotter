@@ -42,16 +42,16 @@ namespace WindowSnapshotter
                         var savedWindow = GetSavedWindow(savedWindows, hWnd);
 
                         // If window was maximised, restore it as non-maximised first otherwise it may not end up on the original screen
-                        if (savedWindow.Windowplacement.showCmd == (int)showCmdFlags.SW_MAXIMIZE)
+                        if (savedWindow.WindowPlacement.showCmd == (int)showCmdFlags.SW_MAXIMIZE)
                         {
-                            var tempWindowPlacement = savedWindow.Windowplacement;
+                            var tempWindowPlacement = savedWindow.WindowPlacement;
                             tempWindowPlacement.showCmd = (int)showCmdFlags.SW_SHOWNORMAL;
                             SetWindowPlacement(hWnd, ref tempWindowPlacement);
                         }
 
                         var setWindowPlacemenTask = Task.Run(() =>
                         {
-                            SetWindowPlacement(hWnd, ref savedWindow.Windowplacement);
+                            SetWindowPlacement(hWnd, ref savedWindow.WindowPlacement);
                         });
 
                         if (!setWindowPlacemenTask.Wait(TimeSpan.FromMilliseconds(500)))
@@ -82,15 +82,10 @@ namespace WindowSnapshotter
 
         private static WindowDetails GetSavedWindow(List<WindowDetails> savedWindows, IntPtr hWnd)
         {
-            switch (IntPtr.Size)
-            {
-                case sizeof(Int32):
-                    return savedWindows.FirstOrDefault(w => w.WindowHandle32 == (int) hWnd);
-                case sizeof(Int64):
-                    return savedWindows.FirstOrDefault(w => w.WindowHandle64 == (long) hWnd);
-                default:
-                    return savedWindows.FirstOrDefault(w => w.WindowTitle == WindowTitle(hWnd));
-            }
+            var matchingWindowsByHandle = savedWindows.FindAll(w => w.WindowHandle == (long) hWnd);
+            return matchingWindowsByHandle.Count != 1
+                ? savedWindows.FirstOrDefault(w => w.WindowTitle == WindowTitle(hWnd))
+                : matchingWindowsByHandle.FirstOrDefault();
         }
 
         public static WindowManagerResult SnapshotWindows(string savedWindowsFileName)
@@ -110,9 +105,8 @@ namespace WindowSnapshotter
                         windowDetailsList.Add(new WindowDetails
                         {
                             WindowTitle = windowTitle,
-                            WindowHandle32 = IntPtr.Size == sizeof(Int32) ? (int)hWnd : 0,
-                            WindowHandle64 = IntPtr.Size == sizeof(Int64) ? (long)hWnd : 0,
-                            Windowplacement = placement
+                            WindowHandle = (long)hWnd,
+                            WindowPlacement = placement
                         });
                     }
                     return true;

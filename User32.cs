@@ -66,9 +66,8 @@ namespace WindowSnapshotter
         public struct WindowDetails
         {
             public string WindowTitle;
-            public Int32 WindowHandle32;
-            public Int64 WindowHandle64;
-            public WINDOWPLACEMENT Windowplacement;
+            public long WindowHandle;
+            public WINDOWPLACEMENT WindowPlacement;
         }
 
         public enum showCmdFlags
