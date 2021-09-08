@@ -77,6 +77,13 @@
       <DependentUpon>AboutBox.cs</DependentUpon>
     </Compile>
     <Compile Include="ContextMenus.cs" />
+    <Compile Include="HotKeyManager.cs" />
+    <Compile Include="HotKeyReceiverForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="HotKeyReceiverForm.Designer.cs">
+      <DependentUpon>HotKeyReceiverForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="ProcessIcon.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -95,6 +102,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

@@ -63,7 +63,7 @@ namespace WindowSnapshotter
                 pi.Display();
 
                 // Make sure the application runs!
-                Application.Run();
+                Application.Run(new HotKeyReceiverForm());
             }
         }
     }
