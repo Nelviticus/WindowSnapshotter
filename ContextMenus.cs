@@ -19,6 +19,7 @@ namespace WindowSnapshotter
         /// Is the About box displayed?
         /// </summary>
         bool _isAboutLoaded = false;
+        bool _isOutputLoaded = false;
 
         NotifyIcon _notifyIcon;
 
@@ -60,8 +61,17 @@ namespace WindowSnapshotter
             item.Image = Resources.Save_32x;
             menu.Items.Add(item);
 
+            // Separator.
+            menu.Items.Add(new ToolStripSeparator());
+
+            // List saved window titles.
+            item = new ToolStripMenuItem { Text = "List saved windows", ToolTipText = "List the titles of the saved windows" };
+            item.Click += List_Click;
+            item.Image = Resources.StatusInformation_32x_exp;
+            menu.Items.Add(item);
+
 			// Separator.
-			menu.Items.Add(new ToolStripSeparator());
+            menu.Items.Add(new ToolStripSeparator());
 
             // About.
             item = new ToolStripMenuItem {Text = "About"};
@@ -173,6 +183,27 @@ namespace WindowSnapshotter
                 default:
                     ShowMessage("Restore error", "There was an error restoring the window positions.", true);
                     break;
+            }
+        }
+
+        /// <summary>
+        /// Handles the Click event of the List control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
+        void List_Click(object sender, EventArgs e)
+        {
+            if (!_isOutputLoaded)
+            {
+                var list = WindowManager.ListSavedWindows(DefaultSaveFile);
+                if (list == null)
+                {
+                    ShowMessage("Unable to retrieve list of saved windows", true);
+                    return;
+                }
+                _isOutputLoaded = true;
+                new OutputBox(list).ShowDialog();
+                _isOutputLoaded = false;
             }
         }
 

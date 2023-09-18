@@ -131,5 +131,32 @@ namespace WindowSnapshotter
 
             return WindowManagerResult.Success;
         }
+
+        public static IEnumerable<string> ListSavedWindows(string savedWindowsFile)
+        {
+            var windowList = new List<string>();
+
+            if (!File.Exists(savedWindowsFile))
+                return null;
+
+            try
+            {
+                List<WindowDetails> savedWindows;
+                var serializer = new XmlSerializer(typeof(List<WindowDetails>));
+
+                using (var reader = XmlReader.Create(savedWindowsFile))
+                {
+                    savedWindows = (List<WindowDetails>)serializer.Deserialize(reader);
+                }
+
+                windowList.AddRange(savedWindows.Select(savedWindow => savedWindow.WindowTitle));
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+            return windowList;
+        }
     }
 }
